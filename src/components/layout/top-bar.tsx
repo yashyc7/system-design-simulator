@@ -22,6 +22,8 @@ import {
   MoreHorizontal,
   Heart,
   Coffee,
+  Undo2,
+  Redo2,
 } from "lucide-react";
 import { useAppStore } from "@/store/appStore";
 import { useCanvasStore } from "@/store/canvasStore";
@@ -53,6 +55,15 @@ export function TopBar({ onSimulate, onScore, onClearCanvas, onSave, onLoad, onS
   const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
   const { screenToFlowPosition } = useReactFlow();
   const addNode = useCanvasStore((s) => s.addNode);
+
+  // Undo/redo — subscribe to stack lengths so the buttons enable/disable reactively
+  const canUndo = useCanvasStore((s) => s.history.length > 0);
+  const canRedo = useCanvasStore((s) => s.future.length > 0);
+  const activeTabReadOnly = useCanvasStore(
+    (s) => s.tabs.find((t) => t.id === s.activeTabId)?.readOnly === true,
+  );
+  const undo = useCanvasStore((s) => s.undo);
+  const redo = useCanvasStore((s) => s.redo);
 
   const selectedProblemId = useAppStore((s) => s.selectedProblemId);
   const setSelectedProblem = useAppStore((s) => s.setSelectedProblem);
@@ -259,6 +270,27 @@ export function TopBar({ onSimulate, onScore, onClearCanvas, onSave, onLoad, onS
         >
           <StickyNote className="h-3 w-3" />
           Add Note
+        </button>
+
+        <div className="mx-1 hidden h-4 w-px bg-zinc-800 md:block" />
+
+        <button
+          onClick={undo}
+          disabled={!canUndo || activeTabReadOnly}
+          className="hidden h-7 w-7 shrink-0 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200 disabled:pointer-events-none disabled:opacity-40 md:flex"
+          title="Undo (⌘Z)"
+          aria-label="Undo"
+        >
+          <Undo2 className="h-3.5 w-3.5" />
+        </button>
+        <button
+          onClick={redo}
+          disabled={!canRedo || activeTabReadOnly}
+          className="hidden h-7 w-7 shrink-0 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200 disabled:pointer-events-none disabled:opacity-40 md:flex"
+          title="Redo (⌘⇧Z)"
+          aria-label="Redo"
+        >
+          <Redo2 className="h-3.5 w-3.5" />
         </button>
 
         <div className="mx-1 hidden h-4 w-px bg-zinc-800 md:block" />

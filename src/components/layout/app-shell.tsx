@@ -192,6 +192,25 @@ export function AppShell() {
         }
       }
 
+      // Undo / Redo — Cmd/Ctrl+Z, redo via Shift+Z or Ctrl+Y. Disabled on read-only tabs.
+      if (key === "z" && (e.metaKey || e.ctrlKey)) {
+        const { tabs, activeTabId, undo, redo } = useCanvasStore.getState();
+        const isReadOnlyTab = tabs.find((t) => t.id === activeTabId)?.readOnly === true;
+        if (!isReadOnlyTab) {
+          e.preventDefault();
+          if (e.shiftKey) redo();
+          else undo();
+        }
+      }
+      if (key === "y" && (e.metaKey || e.ctrlKey)) {
+        const { tabs, activeTabId, redo } = useCanvasStore.getState();
+        const isReadOnlyTab = tabs.find((t) => t.id === activeTabId)?.readOnly === true;
+        if (!isReadOnlyTab) {
+          e.preventDefault();
+          redo();
+        }
+      }
+
       if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         handleSimulate();

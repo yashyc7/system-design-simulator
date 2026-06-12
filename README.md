@@ -280,10 +280,12 @@ Open **http://localhost:3000**
 |----------|--------|
 | `Ctrl+Enter` | Run simulation |
 | `Ctrl+Shift+S` | Score design |
+| `Ctrl+Z` | Undo |
+| `Ctrl+Shift+Z` / `Ctrl+Y` | Redo |
 | `Ctrl+S` | Save design |
 | `Ctrl+O` | Load design |
 | `Ctrl+E` | Export as PNG |
-| `Delete` | Remove selected node |
+| `Delete` | Remove selected node or edge |
 | `Escape` | Deselect |
 
 ---
