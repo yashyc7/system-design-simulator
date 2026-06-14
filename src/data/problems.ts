@@ -173,9 +173,9 @@ export const PROBLEMS: Problem[] = [
     title: "Chat System",
     difficulty: "Hard",
     description:
-      "Design a real-time chat application like WhatsApp, Slack, or Discord. Support 1:1 messaging, group chats with up to 1000 members, read receipts, typing indicators, and online presence. Messages must be delivered reliably and in order, even when users switch between devices. WhatsApp processes over 100 billion messages per day — the key challenges are maintaining persistent connections at scale and achieving effectively-once delivery (at-least-once delivery plus client-side dedup via message IDs — true exactly-once delivery is impossible in a distributed system).",
+      "Design a real-time chat application like WhatsApp, Slack, or Discord. Support 1:1 messaging, group chats with up to 1000 members, read receipts, typing indicators, and online presence. Messages must be delivered reliably and in order, even when users switch between devices. WhatsApp processes over 140 billion messages per day — the key challenges are maintaining persistent connections at scale and achieving effectively-once delivery (at-least-once delivery plus client-side dedup via message IDs — true exactly-once delivery is impossible in a distributed system).",
     requirements: {
-      readsPerSec: 50000,
+      readsPerSec: 200000,
       writesPerSec: 100000,
       storageGB: 50000,
       latencyMs: 50,
@@ -247,7 +247,7 @@ export const PROBLEMS: Problem[] = [
     title: "Uber / Ride Sharing",
     difficulty: "Hard",
     description:
-      "Design a ride-sharing platform like Uber or Lyft. Match riders with nearby drivers in real-time, track live location updates, calculate accurate ETAs, and handle dynamic surge pricing. The system must ingest millions of location updates per second from active drivers while simultaneously running proximity queries to match riders. Uber processes over 1 million location updates per second during peak hours, making geospatial indexing and real-time stream processing the central design challenges.",
+      "Design a ride-sharing platform like Uber or Lyft. Match riders with nearby drivers in real-time, track live location updates, calculate accurate ETAs, and handle dynamic surge pricing. The system must ingest millions of location updates per second from active drivers while simultaneously running proximity queries to match riders. Uber processes hundreds of thousands of location updates per second during peak hours, making geospatial indexing and real-time stream processing the central design challenges.",
     requirements: {
       readsPerSec: 80000,
       writesPerSec: 300000,
@@ -330,8 +330,8 @@ export const PROBLEMS: Problem[] = [
       readsPerSec: 200000,
       writesPerSec: 5000,
       storageGB: 1000000,
-      latencyMs: 200,
-      users: "2.7B MAU",
+      latencyMs: 1000,
+      users: "~2.5B MAU",
     },
     constraints: [
       "Videos transcoded into multiple resolutions (360p, 720p, 1080p, 4K) and codecs (H.264, VP9, AV1)",
@@ -470,7 +470,7 @@ export const PROBLEMS: Problem[] = [
     title: "Notification System",
     difficulty: "Medium",
     description:
-      "Design a scalable notification service like Firebase Cloud Messaging or AWS SNS that delivers push notifications, emails, and SMS to hundreds of millions of users. The system must handle priority-based routing, template rendering, delivery tracking, and retry logic across multiple channels. Firebase Cloud Messaging delivers over 1 trillion push notifications per year — the key challenges are fan-out at scale, rate limiting per channel, and maintaining delivery guarantees without overwhelming downstream providers.",
+      "Design a scalable notification service like Firebase Cloud Messaging or AWS SNS that delivers push notifications, emails, and SMS to hundreds of millions of users. The system must handle priority-based routing, template rendering, delivery tracking, and retry logic across multiple channels. Firebase Cloud Messaging delivers over 1 trillion messages per week — the key challenges are fan-out at scale, rate limiting per channel, and maintaining delivery guarantees without overwhelming downstream providers.",
     requirements: {
       readsPerSec: 50000,
       writesPerSec: 100000,
@@ -742,7 +742,7 @@ export const PROBLEMS: Problem[] = [
     title: "Payment System",
     difficulty: "Hard",
     description:
-      "Design a payment processing platform like Stripe or PayPal. The system handles payment authorization, capture, settlement, refunds, and ledger management with strict financial consistency guarantees. Stripe processes nearly $2 trillion annually — the core challenges are ensuring exactly-once payment execution through idempotency keys, maintaining a double-entry accounting ledger, and handling the complex state machine of payment lifecycles across multiple payment processors and methods.",
+      "Design a payment processing platform like Stripe or PayPal. The system handles payment authorization, capture, settlement, refunds, and ledger management with strict financial consistency guarantees. Stripe processes over $1.4 trillion annually (2024) — the core challenges are ensuring effectively-once (idempotent) payment execution — idempotency keys make at-least-once retries safe, preventing double-charges, maintaining a double-entry accounting ledger, and handling the complex state machine of payment lifecycles across multiple payment processors and methods.",
     requirements: {
       readsPerSec: 30000,
       writesPerSec: 10000,
@@ -751,7 +751,7 @@ export const PROBLEMS: Problem[] = [
       users: "10M merchants",
     },
     constraints: [
-      "Exactly-once payment execution using idempotency keys — no double-charges under any failure scenario",
+      "Effectively-once (idempotent) payment execution — idempotency keys make at-least-once retries safe, preventing double-charges under any failure scenario",
       "Double-entry accounting ledger — every transaction creates balanced debit and credit entries",
       "Support multiple payment methods: credit cards, bank transfers, digital wallets, crypto",
       "PCI DSS compliance — card numbers must be tokenized and never stored in plaintext",
@@ -1119,7 +1119,7 @@ export const PROBLEMS: Problem[] = [
     title: "Instagram / Photo Sharing",
     difficulty: "Medium",
     description:
-      "Design a photo and short-video sharing platform like Instagram. Users upload photos that are processed (resized, filtered, compressed), stored across a CDN, and displayed in a personalized feed. Instagram serves over 2 billion monthly active users and processes 100+ million photo uploads daily — the key challenges are building an efficient media processing pipeline, generating a ranked feed from thousands of candidate posts, and serving media globally with minimal latency using edge caching.",
+      "Design a photo and short-video sharing platform like Instagram. Users upload photos that are processed (resized, filtered, compressed), stored across a CDN, and displayed in a personalized feed. Instagram serves over 3 billion monthly active users and processes 100+ million photo uploads daily — the key challenges are building an efficient media processing pipeline, generating a ranked feed from thousands of candidate posts, and serving media globally with minimal latency using edge caching.",
     requirements: {
       readsPerSec: 150000,
       writesPerSec: 20000,
@@ -1203,7 +1203,7 @@ export const PROBLEMS: Problem[] = [
       writesPerSec: 10000,
       storageGB: 500000,
       latencyMs: 200,
-      users: "250M DAU",
+      users: "200M DAU",
     },
     constraints: [
       "Adaptive bitrate audio streaming (96kbps, 160kbps, 320kbps) based on network conditions",
@@ -1273,7 +1273,7 @@ export const PROBLEMS: Problem[] = [
     title: "Amazon / E-Commerce",
     difficulty: "Hard",
     description:
-      "Design a large-scale e-commerce platform like Amazon. The system handles product catalog management with millions of SKUs, shopping cart persistence, inventory tracking across warehouses, order processing, and personalized recommendations. Amazon processes over 300 million active customer accounts and handles millions of orders per hour during peak events like Prime Day — the central challenges are maintaining inventory consistency across concurrent purchases, building a low-latency product search, and orchestrating the complex order fulfillment pipeline.",
+      "Design a large-scale e-commerce platform like Amazon. The system handles product catalog management with millions of SKUs, shopping cart persistence, inventory tracking across warehouses, order processing, and personalized recommendations. Amazon processes over 300 million active customer accounts and handles over a million orders per hour at peak during events like Prime Day (Prime Day 2023 peaked at ~22,000 orders/minute) — the central challenges are maintaining inventory consistency across concurrent purchases, building a low-latency product search, and orchestrating the complex order fulfillment pipeline.",
     requirements: {
       readsPerSec: 200000,
       writesPerSec: 50000,
@@ -1384,7 +1384,7 @@ export const PROBLEMS: Problem[] = [
       {
         title: "Search architecture",
         content:
-          "Index messages in Elasticsearch partitioned by workspace. Update the index asynchronously via a message queue to avoid slowing down message sends.",
+          "Index messages in a Lucene-based search engine (Slack uses Solr) partitioned by workspace. Update the index asynchronously via a message queue to avoid slowing down message sends.",
       },
       {
         title: "Advanced: Connection gateway",
@@ -1505,13 +1505,13 @@ export const PROBLEMS: Problem[] = [
     title: "Netflix / Video Streaming Platform",
     difficulty: "Hard",
     description:
-      "Design a video streaming platform like Netflix that serves personalized content to 325 million subscribers across 190+ countries. Netflix accounts for over 15% of global internet bandwidth during peak hours — the key challenges are building a content recommendation engine that drives 80% of watch time, implementing adaptive bitrate streaming (ABR) that adjusts quality frame-by-frame based on network conditions, and leveraging a global CDN (Open Connect) with ISP-embedded appliances to serve 17,000+ titles with ~1s start times.",
+      "Design a video streaming platform like Netflix that serves personalized content to over 300 million subscribers (~302M, Q4 2024) across 190+ countries. Netflix accounts for over 15% of global downstream internet traffic — the key challenges are building a content recommendation engine that drives 80% of watch time, implementing adaptive bitrate streaming (ABR) that adjusts quality frame-by-frame based on network conditions, and leveraging a global CDN (Open Connect) with ISP-embedded appliances to serve thousands of titles with ~1s start times.",
     requirements: {
       readsPerSec: 300000,
       writesPerSec: 5000,
       storageGB: 2000000,
       latencyMs: 100,
-      users: "325M subscribers",
+      users: "302M subscribers",
     },
     constraints: [
       "Adaptive bitrate streaming (ABR) using per-shot encoding — each scene encoded at optimal bitrate/resolution ladder",
@@ -1659,13 +1659,13 @@ export const PROBLEMS: Problem[] = [
     title: "Google Maps / Navigation",
     difficulty: "Hard",
     description:
-      "Design a mapping and navigation platform like Google Maps that serves map tiles, computes optimal routes, provides real-time traffic updates, and estimates accurate ETAs. Google Maps serves over 1 billion monthly active users and processes 1 billion kilometers of driving directions daily — the core challenges are serving pre-rendered map tiles at multiple zoom levels from a multi-petabyte tile corpus, computing shortest paths on a road graph with hundreds of millions of edges using hierarchical algorithms (Contraction Hierarchies / A*), and ingesting real-time GPS probe data from millions of devices to update traffic conditions every 30 seconds.",
+      "Design a mapping and navigation platform like Google Maps that serves map tiles, computes optimal routes, provides real-time traffic updates, and estimates accurate ETAs. Google Maps serves over 2 billion monthly active users and processes 1 billion kilometers of driving directions daily — the core challenges are serving pre-rendered map tiles at multiple zoom levels from a multi-petabyte tile corpus, computing shortest paths on a road graph with hundreds of millions of edges using hierarchical algorithms (Contraction Hierarchies / A*), and ingesting real-time GPS probe data from millions of devices to update traffic conditions every 30 seconds.",
     requirements: {
       readsPerSec: 500000,
       writesPerSec: 100000,
       storageGB: 5000000,
       latencyMs: 200,
-      users: "1B+ MAU",
+      users: "2B+ MAU",
     },
     constraints: [
       "Map tile serving at 20+ zoom levels — vector tiles for mobile, raster tiles for web, pre-rendered and cached at CDN edge",
@@ -1810,7 +1810,7 @@ export const PROBLEMS: Problem[] = [
       writesPerSec: 40000,
       storageGB: 50000,
       latencyMs: 200,
-      users: "46M MAU",
+      users: "~42M MAU (37M+ all-time high reported Dec 2023, growing double-digit YoY)",
     },
     constraints: [
       "Real-time order tracking with GPS updates every 5 seconds from active delivery drivers",
@@ -1877,13 +1877,13 @@ export const PROBLEMS: Problem[] = [
     title: "Reddit / Social News",
     difficulty: "Medium",
     description:
-      "Design a social news aggregation and discussion platform like Reddit. Users submit posts to topic-based communities (subreddits), vote content up or down, and engage in deeply nested comment threads. Reddit serves 97+ million daily active users across 100,000+ active communities — the key challenges are implementing a ranking algorithm (hot, top, controversial, best) that surfaces quality content across communities of vastly different sizes, efficiently storing and rendering deeply nested comment trees with thousands of replies, and building a moderation system that scales across volunteer moderators.",
+      "Design a social news aggregation and discussion platform like Reddit. Users submit posts to topic-based communities (subreddits), vote content up or down, and engage in deeply nested comment threads. Reddit serves ~120M daily active uniques (DAUq, Q4 2025) across 100,000+ active communities — the key challenges are implementing a ranking algorithm (hot, top, controversial, best) that surfaces quality content across communities of vastly different sizes, efficiently storing and rendering deeply nested comment trees with thousands of replies, and building a moderation system that scales across volunteer moderators.",
     requirements: {
       readsPerSec: 200000,
       writesPerSec: 20000,
       storageGB: 200000,
       latencyMs: 200,
-      users: "97M DAU",
+      users: "~120M daily active uniques (DAUq, Q4 2025)",
     },
     constraints: [
       "Multiple ranking algorithms: hot (time-decayed score), top (by time window), controversial (balanced up/down), best (Wilson score)",
@@ -1958,7 +1958,7 @@ export const PROBLEMS: Problem[] = [
       writesPerSec: 10000,
       storageGB: 100000,
       latencyMs: 200,
-      users: "150M+ users, ~5M DAU",
+      users: "200M+ active users, ~5M DAU",
     },
     constraints: [
       "Search with compound filters: location (geo-radius), date range availability, price range, guest count, amenities, property type",
@@ -2184,7 +2184,7 @@ export const PROBLEMS: Problem[] = [
       writesPerSec: 5000,
       storageGB: 50000,
       latencyMs: 200,
-      users: "33M monthly unique visitors",
+      users: "~178M monthly unique visitors across web + app (2024)",
     },
     constraints: [
       "Geospatial search using QuadTree or Geohash index — find businesses within radius sorted by relevance and distance",
@@ -2387,7 +2387,7 @@ export const PROBLEMS: Problem[] = [
     title: "Digital Wallet / UPI",
     difficulty: "Hard",
     description:
-      "Design a digital wallet and P2P payment system like Google Pay, PayTM, or UPI (Unified Payments Interface). India's UPI network processes over 16 billion transactions per month across 600+ banks — the core challenges are maintaining strict financial consistency with double-entry bookkeeping, achieving exactly-once transaction execution through idempotency keys (critical when network timeouts cause retries), implementing distributed locks for concurrent balance updates, and meeting regulatory requirements for transaction audit trails, KYC compliance, and settlement reconciliation with banking partners.",
+      "Design a digital wallet and P2P payment system like Google Pay, PayTM, or UPI (Unified Payments Interface). India's UPI network processes over 16 billion transactions per month across 600+ banks — the core challenges are maintaining strict financial consistency with double-entry bookkeeping, achieving effectively-once (idempotent) transaction execution through idempotency keys — retries are safe and never re-debit (critical when network timeouts cause retries), implementing distributed locks for concurrent balance updates, and meeting regulatory requirements for transaction audit trails, KYC compliance, and settlement reconciliation with banking partners.",
     requirements: {
       readsPerSec: 50000,
       writesPerSec: 30000,
@@ -2396,7 +2396,7 @@ export const PROBLEMS: Problem[] = [
       users: "100M DAU",
     },
     constraints: [
-      "Exactly-once transaction execution using idempotency keys — retries must return the same result without re-debiting",
+      "Effectively-once (idempotent) transaction execution using idempotency keys — retries must return the same result without re-debiting",
       "Double-entry bookkeeping — every transfer creates a debit on sender and credit on receiver that sum to zero",
       "Distributed locks for balance updates — prevent race conditions when concurrent transactions hit the same wallet",
       "KYC (Know Your Customer) compliance with tiered wallet limits based on verification level",

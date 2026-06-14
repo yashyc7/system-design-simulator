@@ -844,7 +844,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
       { id: "r4", text: "Multiple payment methods (cards, bank transfers, wallets)", category: "functional", importance: "important" },
       { id: "r5", text: "Dispute/chargeback handling workflow", category: "functional", importance: "important" },
       { id: "r6", text: "Daily reconciliation with bank settlement files", category: "functional", importance: "important" },
-      { id: "r7", text: "Exactly-once payment execution via idempotency keys", category: "non-functional", importance: "critical" },
+      { id: "r7", text: "Effectively-once (idempotent) payment execution — idempotency keys make at-least-once retries safe, preventing double-charges", category: "non-functional", importance: "critical" },
       { id: "r8", text: "PCI DSS compliance — tokenize card numbers", category: "non-functional", importance: "critical" },
       { id: "r9", text: "Multi-currency with proper rounding (banker's rounding)", category: "non-functional", importance: "important" },
       { id: "r10", text: "99.999% availability for payment processing", category: "non-functional", importance: "critical" },
@@ -870,7 +870,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
         type: "sql",
         fields: [
           { name: "payment_id", type: "uuid" },
-          { name: "idempotency_key", type: "string", note: "Unique index for exactly-once" },
+          { name: "idempotency_key", type: "string", note: "Unique index for idempotency (effectively-once)" },
           { name: "merchant_id", type: "string" },
           { name: "amount", type: "bigint", note: "In minor currency units (cents)" },
           { name: "currency", type: "string", note: "ISO 4217 (USD, EUR, JPY)" },
@@ -1168,7 +1168,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
       },
     ],
     estimationHints: {
-      dailyActiveUsers: "500M DAU, average 10 file syncs/day per user",
+      dailyActiveUsers: "700M+ registered users (tens of millions DAU), average 10 file syncs/day per user",
       readWriteRatio: "1:1 — balanced between downloads and uploads/syncs",
       storagePerItem: "Average file: 1 MB; with dedup and versioning, effective storage is ~60% of raw",
       peakMultiplier: "2x during business hours; Monday mornings see highest sync volume",
@@ -1355,7 +1355,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
       },
     ],
     estimationHints: {
-      dailyActiveUsers: "2B MAU (~500M DAU), average user scrolls 30 posts/session, 100M uploads/day",
+      dailyActiveUsers: "3B MAU (~500M DAU), average user scrolls 30 posts/session, 100M uploads/day",
       readWriteRatio: "50:1 — feed views and media downloads vastly exceed uploads",
       storagePerItem: "Average photo: 2 MB original, ~5 MB across all sizes; 100M/day = 500 TB/day raw media",
       peakMultiplier: "3x during holidays and cultural events (New Year's Eve, festivals)",
@@ -1552,7 +1552,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
       },
     ],
     estimationHints: {
-      dailyActiveUsers: "300M DAU, ~10M orders/day, 200M+ product searches/day",
+      dailyActiveUsers: "300M+ active customer accounts, ~10M orders/day, 200M+ product searches/day",
       readWriteRatio: "100:1 reads:writes — product browsing and search vastly exceed order placement",
       storagePerItem: "~5 KB per product, ~2 KB per order; 100M products = 500 GB catalog; 10M orders/day = ~20 GB/day",
       peakMultiplier: "100x during Prime Day / Black Friday flash sales",
@@ -1578,7 +1578,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
     ],
     followUpQuestions: [
       { id: "q1", question: "How do you ensure workspace data isolation in a multi-tenant system?", category: "security", hint: "Tenant-scoped data access at every layer", answer: "Every database query includes a workspace_id in the WHERE clause. Partition the search index by workspace_id. Use workspace-scoped auth tokens that are validated at the API gateway. Row-level security in the database as a defense-in-depth measure. Encrypt data at rest per workspace with distinct keys for compliance-sensitive customers." },
-      { id: "q2", question: "How do you build full-text search across billions of messages?", category: "scale", hint: "Elasticsearch partitioned by workspace", answer: "Index messages in Elasticsearch, partitioned by workspace_id for tenant isolation. Index asynchronously via a message queue to avoid slowing down message sends. Support rich query syntax: 'from:alice in:#engineering has:file after:2025-01-01'. Use per-workspace result limits and relevance scoring based on recency and channel membership." },
+      { id: "q2", question: "How do you build full-text search across billions of messages?", category: "scale", hint: "Elasticsearch partitioned by workspace", answer: "Index messages in a Lucene-based search engine (Slack uses Solr), partitioned by workspace_id for tenant isolation. Index asynchronously via a message queue to avoid slowing down message sends. Support rich query syntax: 'from:alice in:#engineering has:file after:2025-01-01'. Use per-workspace result limits and relevance scoring based on recency and channel membership." },
       { id: "q3", question: "How do you deliver a message to 10,000 members of a large channel?", category: "scale", hint: "Pub/Sub with connection registry", answer: "When a message is sent to a channel, publish it to a Redis Pub/Sub topic for that channel. Each WebSocket gateway server subscribes to topics for its connected users' channels. The gateway pushes the message to all locally connected members. Users not currently connected receive the message on next sync. This avoids iterating over all 10K members in the app server." },
       { id: "q4", question: "How do you implement threaded conversations?", category: "optimization", hint: "Parent-child message relationship", answer: "Store a thread_id (parent message ID) on reply messages. Maintain a thread metadata record with reply_count, last_reply_at, and participant_ids. When loading a channel, show thread previews (reply count + latest reply) without loading full threads. Fetch full thread content on demand when the user clicks 'View thread'. Index threads separately for thread-specific search." },
       { id: "q5", question: "How do you handle the integration framework (bots, webhooks)?", category: "optimization", hint: "Event-driven with app-scoped permissions", answer: "Expose a webhook URL per integration. When events occur (message posted, reaction added, user joined), publish events to a message queue. Integration workers deliver events to registered webhook URLs. Slash commands route through the API gateway to the registered handler URL. Each integration has scoped permissions (which channels it can read/write) and rate limits." },
@@ -1836,7 +1836,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
       },
     ],
     estimationHints: {
-      dailyActiveUsers: "325M subscribers, ~200M daily viewers; 15%+ of global downstream internet traffic at peak",
+      dailyActiveUsers: "over 300 million subscribers (~302M, Q4 2024), ~200M daily viewers; 15%+ of global downstream internet traffic",
       readWriteRatio: "1000:1 reads:writes — streaming and browsing dominate; writes are playback events and catalog updates",
       storagePerItem: "A 1-hour title across the full ladder (1000+ encoded variants incl. codecs/languages) ≈ 100+ GB; 17K titles = multi-PB corpus replicated across thousands of OCAs",
       peakMultiplier: "3x during regional evening prime time; major releases pre-positioned on OCAs to absorb day-one spikes",
@@ -1927,7 +1927,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
       },
     ],
     estimationHints: {
-      dailyActiveUsers: "75M MAU (~10M DAU); ~2B swipes/day ≈ 23K swipe writes/sec average",
+      dailyActiveUsers: "75M MAU (~26M DAU); ~2B swipes/day ≈ 23K swipe writes/sec average",
       readWriteRatio: "≈2:1 reads:writes — deck fetches, profile and photo reads vs the heavy swipe write stream",
       storagePerItem: "~100 bytes per swipe record = ~200 GB/day; ~2 KB per profile + ~5 MB of photos per user (CDN/object storage)",
       peakMultiplier: "3x on Sunday evenings; seasonal spikes around New Year and Valentine's Day",
@@ -1953,7 +1953,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
     ],
     followUpQuestions: [
       { id: "q1", question: "How does the map tile pyramid work?", category: "optimization", hint: "2^z × 2^z grid per zoom level, pre-rendered, CDN-cached", answer: "The world is rendered as a pyramid: at zoom level z the map is a 2^z × 2^z grid of 256px tiles (4^z tiles total) — zoom 0 is one tile for the whole world; zoom 20 resolves individual buildings. Tiles are addressed by (z, x, y), pre-rendered offline from the geographic database, stored in object storage, and served via CDN — the client just fetches the tiles covering its viewport. Mobile clients use vector tiles instead of raster: smaller payloads, client-side rendering, smooth rotation, and restyling without new downloads." },
-      { id: "q2", question: "How do you compute a cross-country route in milliseconds when Dijkstra would take seconds?", category: "optimization", hint: "Preprocessing: Contraction Hierarchies; A* as the baseline improvement", answer: "Plain Dijkstra explores millions of nodes; A* with a distance heuristic prunes that but is still too slow at continental scale. Production routing uses Contraction Hierarchies: offline, nodes are ranked by importance and 'contracted' one by one, adding shortcut edges that preserve shortest-path distances. A query then runs a bidirectional search that only ever goes 'upward' in the hierarchy — touching thousands of nodes instead of millions, answering in under a millisecond on the server. Live traffic is folded in via customizable variants (CCH) whose edge weights can be re-customized in minutes without redoing the full preprocessing." },
+      { id: "q2", question: "How do you compute a cross-country route in milliseconds when Dijkstra would take seconds?", category: "optimization", hint: "Preprocessing: Contraction Hierarchies; A* as the baseline improvement", answer: "Plain Dijkstra explores millions of nodes; A* with a distance heuristic prunes that but is still too slow at continental scale. Production routing uses contraction-hierarchy-style preprocessing (e.g., CH; Google's published work centers on CRP): offline, nodes are ranked by importance and 'contracted' one by one, adding shortcut edges that preserve shortest-path distances. A query then runs a bidirectional search that only ever goes 'upward' in the hierarchy — touching thousands of nodes instead of millions, answering in under a millisecond on the server. Live traffic is folded in via customizable variants like CRP (Customizable Route Planning) whose edge weights can be re-customized in minutes without redoing the full preprocessing." },
       { id: "q3", question: "How is live traffic computed from GPS probes?", category: "scale", hint: "Map matching + windowed aggregation in a stream processor", answer: "Phones running navigation send anonymized GPS probes every few seconds. Raw GPS is noisy, so a map-matching step (classically an HMM that considers road connectivity and plausible speeds) snaps each probe sequence to specific road segments. A stream processor then aggregates per-segment speeds over ~30-60 second windows and writes them to a real-time speed store. ETAs blend this live layer with historical speed profiles per segment per time-of-day, so a road with no current probes still gets a sane estimate." },
       { id: "q4", question: "Why might you use S2 cells instead of geohash?", category: "optimization", hint: "Sphere-aware hierarchical cells vs rectangular grid", answer: "Geohash divides the lat/lng rectangle, so cells shrink toward the poles and proximity queries must check up to 8 neighbor cells for points near edges. S2 projects the sphere onto a cube and indexes it with a hierarchical space-filling curve, giving roughly uniform-area cells at each of 30 levels and the ability to cover any region with a small union of cells at mixed levels. That makes 'all POIs in this viewport/radius' a set of efficient index range scans. Geohash remains fine for simple cases since it's a plain sortable string usable in any database." },
       { id: "q5", question: "What happens to routing if the traffic pipeline goes down?", category: "failure", hint: "Degrade to historical speeds", answer: "Routing must not fail with traffic — edge weights fall back to historical time-of-day speed profiles (which are baked in and always available), and the UI drops the live-traffic overlay. Stale traffic data is bounded with TTLs so the router never trusts a 30-minute-old jam reading. This is graceful degradation: ETAs get less accurate, but routes still compute in the same latency budget." },
@@ -2017,7 +2017,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
       },
     ],
     estimationHints: {
-      dailyActiveUsers: "1B+ MAU; hundreds of millions of daily route requests and billions of tile fetches",
+      dailyActiveUsers: "2B+ MAU; hundreds of millions of daily route requests and billions of tile fetches",
       readWriteRatio: "5:1 reads:writes — tile/route/search reads vs a heavy GPS probe ingestion stream (millions of navigating clients reporting every few seconds)",
       storagePerItem: "Road graph: 500M+ segments × ~200 bytes ≈ 100+ GB in memory per full replica; pre-rendered tile corpus is multi-PB across zoom levels",
       peakMultiplier: "2x during commute hours; 3-4x on holiday travel days (Thanksgiving, Diwali, Lunar New Year)",
@@ -2042,7 +2042,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
     ],
     followUpQuestions: [
       { id: "q1", question: "SFU vs MCU — which architecture do you choose and why?", category: "optimization", hint: "Forwarding packets vs decoding and mixing them", answer: "An MCU (Multipoint Control Unit) decodes every participant's stream and mixes them into one composite stream per receiver — clients are simple and receive a single stream, but the server burns enormous CPU on transcoding and adds latency. An SFU (Selective Forwarding Unit) forwards encrypted RTP packets without decoding — roughly 10x cheaper per participant and lower latency, at the cost of clients receiving multiple streams. Modern platforms choose SFU plus simulcast. MCU-style mixing survives in two places: PSTN dial-in (a phone can only receive one audio stream) and composing cloud recordings." },
-      { id: "q2", question: "How does simulcast solve the heterogeneous-bandwidth problem?", category: "optimization", hint: "Sender encodes multiple layers; SFU picks per receiver", answer: "Each sender encodes its video at ~3 quality layers (e.g., 180p, 360p, 720p) and sends all of them to the SFU. For every receiver, the SFU selects which layer of which sender to forward, based on (a) the receiver's available bandwidth, estimated via RTCP feedback / transport-wide congestion control, and (b) the tile size in the receiver's layout — a thumbnail in gallery view only needs 180p, while the pinned active speaker gets 720p. The sender pays a modest encoding overhead (~20-30% extra bits) so the SFU never has to transcode." },
+      { id: "q2", question: "How does simulcast solve the heterogeneous-bandwidth problem?", category: "optimization", hint: "Sender encodes multiple layers; SFU picks per receiver", answer: "Each sender encodes its video at ~3 quality layers (e.g., 180p, 360p, 720p) and sends all of them to the SFU. For every receiver, the SFU selects which layer of which sender to forward, based on (a) the receiver's available bandwidth, estimated via RTCP feedback / transport-wide congestion control, and (b) the tile size in the receiver's layout — a thumbnail in gallery view only needs 180p, while the pinned active speaker gets 720p. The sender pays a modest encoding overhead (~15-20% extra bandwidth) so the SFU never has to transcode." },
       { id: "q3", question: "What does the WebRTC stack actually provide here?", category: "optimization", hint: "NAT traversal, encryption, codecs, loss recovery", answer: "WebRTC gives you: ICE with STUN/TURN for NAT traversal (with an SFU, clients usually just connect to the SFU's public address); DTLS for key exchange and SRTP for media encryption; Opus audio and VP8/H.264/AV1 video codecs; and loss resilience — jitter buffers, NACK-based retransmission, keyframe requests (PLI), and forward error correction. Congestion control (e.g., transport-wide-cc) continuously estimates bandwidth so senders adapt bitrate instead of inducing bufferbloat. Audio is prioritized over video because losing audio kills a meeting." },
       { id: "q4", question: "How do you make a 1000-participant meeting feasible when N×N streams is impossible?", category: "scale", hint: "Forward only what's visible/audible", answer: "Never forward all streams to everyone — 1000×999 streams would melt everything. Each receiver subscribes only to visible tiles (25-49 in gallery view, 1-2 in speaker view), paginated as they scroll. For audio, the SFU runs active-speaker detection on audio-level headers and forwards only the loudest ~3-5 streams; everyone else's audio is not forwarded at all. Large meetings effectively degrade into a broadcast: a few active senders, everyone else receive-only (webinar mode makes this explicit)." },
       { id: "q5", question: "What happens when an SFU node dies mid-meeting?", category: "failure", hint: "Separate signaling/state from media; ICE restart", answer: "Keep meeting state (roster, host, mute states, breakout assignments) in a state service backed by Redis/DB — the SFU only routes media. Clients detect media loss within ~1-2 seconds (no packets, failed heartbeats); the signaling channel (WebSocket) assigns them a replacement SFU in the same region, and clients perform an ICE restart to reconnect. The meeting resumes within a few seconds with no state loss; participants see a brief freeze, not a dropped meeting." },
@@ -2201,7 +2201,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
       },
     ],
     estimationHints: {
-      dailyActiveUsers: "46M MAU; ~8M orders/day (DoorDash scale: 750M orders/quarter)",
+      dailyActiveUsers: "~42M MAU (37M+ all-time high reported Dec 2023, growing double-digit YoY); ~8M orders/day (DoorDash scale: 750M orders/quarter)",
       readWriteRatio: "2:1 reads:writes — menu browsing and tracking reads vs order events plus the GPS stream (~200K concurrent drivers × every 5s = 40K location writes/sec)",
       storagePerItem: "~2 KB per order + ~1 KB of state-transition events; 8M orders/day ≈ 25 GB/day; downsampled GPS trails dominate raw volume",
       peakMultiplier: "4x at meal times (12-1 PM, 6-9 PM local); weather events spike demand while shrinking driver supply",
@@ -2296,7 +2296,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
       },
     ],
     estimationHints: {
-      dailyActiveUsers: "97M DAU; ~500K posts/day, tens of millions of votes and comments/day",
+      dailyActiveUsers: "~120M daily active uniques (DAUq, Q4 2025); ~500K posts/day, tens of millions of votes and comments/day",
       readWriteRatio: "10:1 reads:writes — feed and comment reads dominate; votes are the highest-volume write",
       storagePerItem: "~1 KB per post, ~500 bytes per comment, ~50 bytes per vote row; vote rows dominate row count (billions)",
       peakMultiplier: "3x during US evenings; 10x on individual posts during major events (elections, AMAs, breaking news)",
@@ -2656,7 +2656,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
       },
     ],
     estimationHints: {
-      dailyActiveUsers: "33M monthly uniques (~5M DAU); 7M+ businesses, 330M+ reviews",
+      dailyActiveUsers: "~178M monthly unique visitors across web + app (2024) (~5M DAU); 7M+ businesses, 330M+ reviews",
       readWriteRatio: "100:1 reads:writes — searches and page views vastly outnumber reviews/check-ins (most users never write)",
       storagePerItem: "~5 KB per business (7M ≈ 35 GB), ~1 KB per review (330M ≈ 330 GB); photos dominate raw bytes in object storage",
       peakMultiplier: "2x at meal decision times (11:30 AM-1 PM, 6-8 PM) and weekend evenings",
@@ -2852,7 +2852,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
       { id: "r4", text: "Double-entry ledger as the source of financial truth", category: "functional", importance: "critical" },
       { id: "r5", text: "KYC tiers with corresponding wallet/transaction limits", category: "functional", importance: "important" },
       { id: "r6", text: "Daily settlement reconciliation with partner banks", category: "functional", importance: "critical" },
-      { id: "r7", text: "Exactly-once transaction execution — a retried request never debits twice", category: "non-functional", importance: "critical" },
+      { id: "r7", text: "Effectively-once (idempotent) transaction execution — a retried request never debits twice", category: "non-functional", importance: "critical" },
       { id: "r8", text: "Balance can never go negative; no money created or destroyed", category: "non-functional", importance: "critical" },
       { id: "r9", text: "Complete immutable audit trail for regulators", category: "non-functional", importance: "critical" },
       { id: "r10", text: "99.99% availability — payment failures are user-visible incidents", category: "non-functional", importance: "important" },
@@ -2906,7 +2906,7 @@ export const INTERVIEW_DATA: ProblemInterviewData[] = [
         type: "sql",
         fields: [
           { name: "transfer_id", type: "uuid" },
-          { name: "idempotency_key", type: "string", note: "UNIQUE index — the exactly-once mechanism" },
+          { name: "idempotency_key", type: "string", note: "UNIQUE index — the idempotency (effectively-once) mechanism" },
           { name: "from_wallet_id", type: "string" },
           { name: "to_wallet_id", type: "string" },
           { name: "amount", type: "bigint" },
