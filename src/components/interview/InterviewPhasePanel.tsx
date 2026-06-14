@@ -3,7 +3,6 @@
 import { useInterviewStore } from "@/store/interviewStore";
 import { useAppStore } from "@/store/appStore";
 import { getProblemById } from "@/data/problems";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ClipboardList,
   Calculator,
@@ -36,7 +35,7 @@ export function InterviewPhasePanel() {
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <div className="p-3 space-y-4">
           {currentPhase === 0 && <RequirementsGuide problem={problem} />}
           {currentPhase === 1 && <EstimationGuide problem={problem} />}
@@ -44,7 +43,7 @@ export function InterviewPhasePanel() {
           {currentPhase === 3 && <DataModelGuide problem={problem} />}
           {currentPhase === 5 && <DeepDiveGuide problem={problem} />}
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Next phase button */}
       {currentPhase < phases.length - 1 && (

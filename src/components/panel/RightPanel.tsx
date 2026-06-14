@@ -42,7 +42,7 @@ function RightTabs({ onSimulate }: { onSimulate: () => void }) {
         </TabsList>
       </div>
 
-      <TabsContent value="properties" className="mt-0 flex-1 overflow-hidden">
+      <TabsContent value="properties" className="mt-0 flex-1 overflow-hidden min-h-0">
         <ScrollArea className="h-full">
           <div className="p-3">
             <PropertiesTab />
@@ -50,7 +50,7 @@ function RightTabs({ onSimulate }: { onSimulate: () => void }) {
         </ScrollArea>
       </TabsContent>
 
-      <TabsContent value="simulation" className="mt-0 flex-1 overflow-hidden">
+      <TabsContent value="simulation" className="mt-0 flex-1 overflow-hidden min-h-0">
         <ScrollArea className="h-full">
           <div className="p-3 space-y-4">
             <SimulationControls onSimulate={onSimulate} />
@@ -60,13 +60,13 @@ function RightTabs({ onSimulate }: { onSimulate: () => void }) {
         </ScrollArea>
       </TabsContent>
 
-      <TabsContent value="score" className="mt-0 flex-1 overflow-hidden">
+      <TabsContent value="score" className="mt-0 flex-1 overflow-hidden min-h-0">
         <div className="h-full p-3">
           <ScoreReport />
         </div>
       </TabsContent>
 
-      <TabsContent value="capacity" className="mt-0 flex-1 overflow-hidden">
+      <TabsContent value="capacity" className="mt-0 flex-1 overflow-hidden min-h-0">
         <ScrollArea className="h-full">
           <div className="p-3">
             <CapacityCalculator />
@@ -74,7 +74,7 @@ function RightTabs({ onSimulate }: { onSimulate: () => void }) {
         </ScrollArea>
       </TabsContent>
 
-      <TabsContent value="tradeoffs" className="mt-0 flex-1 overflow-hidden">
+      <TabsContent value="tradeoffs" className="mt-0 flex-1 overflow-hidden min-h-0">
         <ScrollArea className="h-full">
           <div className="p-3 space-y-4">
             <TradeoffLog />
