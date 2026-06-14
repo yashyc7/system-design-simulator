@@ -156,12 +156,10 @@ export function LearningPath() {
                         tabIndex={0}
                         onClick={() => setSelectedProblem(pid)}
                         onKeyDown={(e) => { if (e.key === "Enter") setSelectedProblem(pid); }}
-                        className={`flex w-full cursor-pointer flex-col gap-1 rounded-md px-2.5 py-2 text-left transition-colors ${
+                        className={`flex w-full cursor-pointer flex-col gap-1 rounded-md border px-2.5 py-2 text-left transition-colors ${
                           isSelected
-                            ? "border border-zinc-700 bg-zinc-800"
-                            : isRecommended
-                              ? "border border-cyan-800/50 bg-cyan-900/10 hover:bg-cyan-900/20"
-                              : "border border-transparent hover:bg-zinc-800"
+                            ? "border-cyan-500/50 bg-cyan-500/10"
+                            : "border-transparent hover:bg-zinc-800"
                         }`}
                       >
                         <div className="flex items-center justify-between gap-1">
